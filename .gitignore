@@ -42,3 +42,4 @@ terraform.rc
 terraform
 
 vendor
+goreleaser
