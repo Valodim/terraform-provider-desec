@@ -14,6 +14,11 @@ import (
 	dsc "github.com/nrdcg/desec"
 )
 
+type DesecConfig struct {
+	cache  *DesecCache
+	client *dsc.Client
+}
+
 // Provider -
 func Provider() *schema.Provider {
 	return &schema.Provider{
@@ -73,7 +78,8 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 		c.BaseURL = api_uri
 	}
 
-	return c, nil
+	cache := NewDesecCache()
+	return &DesecConfig{&cache, c}, nil
 }
 
 func isNotFoundError(err error) bool {

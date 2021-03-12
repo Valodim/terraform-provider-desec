@@ -64,7 +64,9 @@ func resourceRRSet() *schema.Resource {
 }
 
 func resourceRRSetCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*dsc.Client)
+	conf := m.(*DesecConfig)
+	conf.cache.Clear()
+	c := conf.client
 
 	var diags diag.Diagnostics
 
@@ -107,31 +109,29 @@ func namesFromId(id string) (string, string, string, error) {
 }
 
 func resourceRRSetRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*dsc.Client)
+	conf := m.(*DesecConfig)
+	c := conf.client
 
 	var diags diag.Diagnostics
 
-	domainName, subName, recordType, err := namesFromId(d.Id())
+	r, err := conf.cache.GetRRSetById(ctx, c, d.Id())
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	r, err := c.Records.Get(domainName, subName, recordType)
-	if err != nil {
-		if isNotFoundError(err) {
-			d.SetId("")
-			return diags
-		}
-		return diag.FromErr(err)
+	if r == nil {
+		d.SetId("")
+	} else {
+		rrsetIntoSchema(r, d)
 	}
-
-	rrsetIntoSchema(r, d)
 
 	return diags
 }
 
 func resourceRRSetUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*dsc.Client)
+	conf := m.(*DesecConfig)
+	conf.cache.Clear()
+	c := conf.client
 
 	domainName, subName, recordType, err := namesFromId(d.Id())
 	if err != nil {
@@ -155,7 +155,9 @@ func resourceRRSetUpdate(ctx context.Context, d *schema.ResourceData, m interfac
 }
 
 func resourceRRSetDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*dsc.Client)
+	conf := m.(*DesecConfig)
+	conf.cache.Clear()
+	c := conf.client
 
 	domainName, subName, recordType, err := namesFromId(d.Id())
 	if err != nil {

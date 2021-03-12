@@ -7,8 +7,6 @@ import (
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-
-	dsc "github.com/nrdcg/desec"
 )
 
 func TestAccDesecRRsetBasic(t *testing.T) {
@@ -60,7 +58,7 @@ func testAccCheckDesecRRsetConfigBasic(domainName, ips string) string {
 }
 
 func testAccCheckDesecRRsetExists(s *terraform.State) error {
-	c := testAccProvider.Meta().(*dsc.Client)
+	c := testAccProvider.Meta().(*DesecConfig).client
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "desec_rrset" {

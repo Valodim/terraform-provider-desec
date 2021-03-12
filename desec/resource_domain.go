@@ -68,7 +68,9 @@ func resourceDomain() *schema.Resource {
 }
 
 func resourceDomainCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*dsc.Client)
+	conf := m.(*DesecConfig)
+	conf.cache.Clear()
+	c := conf.client
 
 	domainName := d.Get("name").(string)
 	domain, err := c.Domains.Create(domainName)
@@ -81,7 +83,8 @@ func resourceDomainCreate(ctx context.Context, d *schema.ResourceData, m interfa
 }
 
 func resourceDomainRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*dsc.Client)
+	conf := m.(*DesecConfig)
+	c := conf.client
 
 	domain, err := c.Domains.Get(d.Id())
 	if err != nil {
@@ -97,7 +100,9 @@ func resourceDomainRead(ctx context.Context, d *schema.ResourceData, m interface
 }
 
 func resourceDomainDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*dsc.Client)
+	conf := m.(*DesecConfig)
+	conf.cache.Clear()
+	c := conf.client
 
 	err := c.Domains.Delete(d.Id())
 	if err != nil && !isNotFoundError(err) {

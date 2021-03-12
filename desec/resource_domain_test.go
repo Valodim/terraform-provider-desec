@@ -7,8 +7,6 @@ import (
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-
-	dsc "github.com/nrdcg/desec"
 )
 
 func TestAccDesecDomainBasic(t *testing.T) {
@@ -36,7 +34,9 @@ func TestAccDesecDomainBasic(t *testing.T) {
 }
 
 func testAccCheckDesecDomainDestroy(s *terraform.State) error {
-	c := testAccProvider.Meta().(*dsc.Client)
+	conf := testAccProvider.Meta().(*DesecConfig)
+	conf.cache.Clear()
+	c := conf.client
 
 	domains, err := c.Domains.GetAll()
 	if err != nil {
@@ -58,7 +58,7 @@ func testAccCheckDesecDomainConfigBasic(domainName string) string {
 }
 
 func testAccCheckDesecDomainExists(s *terraform.State) error {
-	c := testAccProvider.Meta().(*dsc.Client)
+	c := testAccProvider.Meta().(*DesecConfig).client
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "desec_domain" {
