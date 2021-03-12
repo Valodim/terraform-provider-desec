@@ -3,6 +3,8 @@ package desec
 import (
 	"context"
 	"fmt"
+	"reflect"
+	"sort"
 	"strings"
 	"time"
 
@@ -36,6 +38,7 @@ func resourceRRSet() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				ValidateFunc: validation.StringLenBetween(0, 178),
 			},
 			"type": {
 				Type:         schema.TypeString,
@@ -53,11 +56,23 @@ func resourceRRSet() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					// records may be reordered by the server.
+					// we cheat here, by checking the whole list as a sorted set of normalized values.
+					// this is inefficient, but luckily the lists are always very small.
+					o, n := d.GetChange("records")
+					if (o == nil) != (n == nil) {
+						return false
+					}
+					no := normalizeRecordSetInterface(o.(*schema.Set).List())
+					nn := normalizeRecordSetInterface(n.(*schema.Set).List())
+					return reflect.DeepEqual(no, nn)
+				},
 			},
 			"ttl": {
 				Type:         schema.TypeInt,
 				Required:     true,
-				ValidateFunc: validation.IntAtLeast(3600),
+				ValidateFunc: validation.IntBetween(3600, 604800),
 			},
 		},
 	}
@@ -78,34 +93,6 @@ func resourceRRSetCreate(ctx context.Context, d *schema.ResourceData, m interfac
 
 	rrsetIntoSchema(rrset, d)
 	return diags
-}
-
-func idFromNames(domainName, subName, recordType string) string {
-	if subName == "" {
-		subName = "@"
-	}
-	return fmt.Sprintf("%s/%s/%s", domainName, subName, recordType)
-}
-
-func namesFromId(id string) (string, string, string, error) {
-	var domainName string
-	var subName string
-	var recordType string
-
-	idAttr := strings.SplitN(id, "/", 3)
-	if len(idAttr) != 3 {
-		return "", "", "", fmt.Errorf("invalid id %q specified, should be in format \"domainName/subName/type\" for import", id)
-	}
-
-	domainName = idAttr[0]
-	subName = idAttr[1]
-	recordType = idAttr[2]
-
-	if subName == "@" {
-		subName = ""
-	}
-
-	return domainName, subName, recordType, nil
 }
 
 func resourceRRSetRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
@@ -178,28 +165,88 @@ func rrsetIntoSchema(r *dsc.RRSet, d *schema.ResourceData) {
 	d.Set("created", r.Created.Format(time.RFC3339))
 	d.Set("domain", r.Domain)
 	d.Set("name", r.Name)
-	d.Set("records", r.Records)
 	d.Set("subname", r.SubName)
 	d.Set("ttl", r.TTL)
 	d.Set("type", r.Type)
+	d.Set("records", normalizeRecordSet(r.Records))
 
 	id := idFromNames(r.Domain, r.SubName, r.Type)
 	d.SetId(id)
 }
 
 func schemaToRRset(d *schema.ResourceData) dsc.RRSet {
+	rtype := d.Get("type").(string)
 	r := dsc.RRSet{
 		Domain:  d.Get("domain").(string),
 		SubName: d.Get("subname").(string),
-		Type:    d.Get("type").(string),
+		Type:    rtype,
 	}
 
 	recs := d.Get("records").(*schema.Set)
 	r.Records = make([]string, recs.Len())
 	for i, rec := range recs.List() {
-		r.Records[i] = rec.(string)
+		if (rtype == "TXT" || rtype == "SPF") && rec.(string)[0] != '"' {
+			r.Records[i] = fmt.Sprintf("\"%s\"", rec.(string))
+		} else {
+			r.Records[i] = rec.(string)
+		}
 	}
 	r.TTL = d.Get("ttl").(int)
 
 	return r
+}
+
+func normalizeRecordSetInterface(s []interface{}) []string {
+	result := make([]string, len(s))
+	for i, rec := range s {
+		result[i] = normalizeLongRecord(rec.(string))
+	}
+	sort.Strings(result)
+	return result
+}
+
+func normalizeRecordSet(s []string) []string {
+	result := make([]string, len(s))
+	for i, rec := range s {
+		result[i] = normalizeLongRecord(rec)
+	}
+	sort.Strings(result)
+	return result
+}
+
+func normalizeLongRecord(s string) string {
+	if s == "" || s[0] != '"' {
+		return s
+	}
+	s = strings.Trim(s, "\"")
+	s = strings.Replace(s, "\" \"", "", -1)
+	return s
+}
+
+func idFromNames(domainName, subName, recordType string) string {
+	if subName == "" {
+		subName = "@"
+	}
+	return fmt.Sprintf("%s/%s/%s", domainName, subName, recordType)
+}
+
+func namesFromId(id string) (string, string, string, error) {
+	var domainName string
+	var subName string
+	var recordType string
+
+	idAttr := strings.SplitN(id, "/", 3)
+	if len(idAttr) != 3 {
+		return "", "", "", fmt.Errorf("invalid id %q specified, should be in format \"domainName/subName/type\" for import", id)
+	}
+
+	domainName = idAttr[0]
+	subName = idAttr[1]
+	recordType = idAttr[2]
+
+	if subName == "@" {
+		subName = ""
+	}
+
+	return domainName, subName, recordType, nil
 }
