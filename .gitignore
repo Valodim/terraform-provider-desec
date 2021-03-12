@@ -42,4 +42,7 @@ terraform.rc
 terraform
 
 vendor
+
+# goreleaser binary and build dir
 goreleaser
+dist
