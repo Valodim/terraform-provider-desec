@@ -28,7 +28,7 @@ func Provider() *schema.Provider {
 				Required:     true,
 				DefaultFunc:  schema.EnvDefaultFunc("DESEC_API_TOKEN", ""),
 				Description:  "The API token for operations.",
-				ValidateFunc: validation.StringMatch(regexp.MustCompile("[0-9a-zA-Z]{14}-[0-9a-zA-Z]{13}"), "API key looks invalid"),
+				ValidateFunc: validation.StringMatch(regexp.MustCompile("[0-9a-zA-Z_-]{28}"), "API key looks invalid"),
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
