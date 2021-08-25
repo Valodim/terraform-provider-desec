@@ -2,6 +2,7 @@ package desec
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"regexp"
 
@@ -35,22 +36,6 @@ func Provider() *schema.Provider {
 				Description:  "The API token for operations.",
 				ValidateFunc: validation.StringMatch(regexp.MustCompile("[0-9a-zA-Z_-]{28}"), "API key looks invalid"),
 			},
-			"limit_read": {
-				// see https://desec.readthedocs.io/en/latest/rate-limits.html
-				// We choose 8r/s here, because going for the full 10/s sometimes runs into limiter failures.
-				Type:        schema.TypeInt,
-				Optional:    true,
-				Default:     8,
-				Description: "Limit of API requests per second, for read operations.",
-			},
-			"limit_write": {
-				// see https://desec.readthedocs.io/en/latest/rate-limits.html
-				// We choose 5r/s here, because going for 6/s sometimes runs into limiter failures.
-				Type:        schema.TypeInt,
-				Optional:    true,
-				Default:     5,
-				Description: "Limit of API requests per second, for write operations.",
-			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"desec_rrset":  resourceRRSet(),
@@ -69,8 +54,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	o := dsc.NewDefaultClientOptions()
 	o.HTTPClient = cleanhttp.DefaultClient()
 	o.HTTPClient.Transport = logging.NewTransport("Desec", o.HTTPClient.Transport)
-	o.LimitRead = d.Get("limit_read").(int)
-	o.LimitWrite = d.Get("limit_write").(int)
+	o.Logger = log.Default()
 
 	c := dsc.New(token, o)
 	api_uri := d.Get("api_uri").(string)

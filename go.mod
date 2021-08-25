@@ -6,5 +6,5 @@ require (
 	github.com/hashicorp/go-cleanhttp v0.5.1
 	github.com/hashicorp/go-uuid v1.0.1
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.0.0-rc.2
-	github.com/nrdcg/desec v0.5.0
+	github.com/nrdcg/desec v0.6.0
 )

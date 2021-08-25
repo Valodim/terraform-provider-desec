@@ -32,7 +32,7 @@ func (r *DesecCache) GetRRSetById(ctx context.Context, c *dsc.Client, id string)
 		r.data = make(map[string]map[string]dsc.RRSet)
 	}
 	if r.data[domainName] == nil {
-		recs, err := c.Records.GetAll(domainName, nil)
+		recs, err := c.Records.GetAll(ctx, domainName, nil)
 		if err != nil {
 			if isNotFoundError(err) {
 				return nil, nil

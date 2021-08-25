@@ -1,6 +1,7 @@
 package desec
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -18,7 +19,7 @@ func TestAccDesecDomainBasic(t *testing.T) {
 	domainName := fmt.Sprintf("%s.example", uuid)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck: func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDesecDomainDestroy,
 		Steps: []resource.TestStep{
@@ -38,7 +39,7 @@ func testAccCheckDesecDomainDestroy(s *terraform.State) error {
 	conf.cache.Clear()
 	c := conf.client
 
-	domains, err := c.Domains.GetAll()
+	domains, err := c.Domains.GetAll(context.TODO())
 	if err != nil {
 		return err
 	}
@@ -65,7 +66,7 @@ func testAccCheckDesecDomainExists(s *terraform.State) error {
 			continue
 		}
 
-		_, err := c.Domains.Get(rs.Primary.ID)
+		_, err := c.Domains.Get(context.TODO(), rs.Primary.ID)
 		if err != nil {
 			return nil
 		}

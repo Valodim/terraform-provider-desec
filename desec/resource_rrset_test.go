@@ -1,6 +1,7 @@
 package desec
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -19,7 +20,7 @@ func TestAccDesecRRsetBasic(t *testing.T) {
 	name := fmt.Sprintf("test.%s.", domainName)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck: func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDesecDomainDestroy,
 		Steps: []resource.TestStep{
@@ -87,7 +88,7 @@ func testAccCheckDesecRRsetExists(s *terraform.State) error {
 		}
 
 		domainName, subName, recordType, err := namesFromId(rs.Primary.ID)
-		_, err = c.Records.Get(domainName, subName, recordType)
+		_, err = c.Records.Get(context.TODO(), domainName, subName, recordType)
 		if err != nil {
 			return nil
 		}
