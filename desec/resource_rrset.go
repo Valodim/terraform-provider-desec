@@ -35,9 +35,9 @@ func resourceRRSet() *schema.Resource {
 				ForceNew: true,
 			},
 			"subname": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
 				ValidateFunc: validation.StringLenBetween(0, 178),
 			},
 			"type": {
@@ -86,7 +86,7 @@ func resourceRRSetCreate(ctx context.Context, d *schema.ResourceData, m interfac
 	var diags diag.Diagnostics
 
 	r := schemaToRRset(d)
-	rrset, err := c.Records.Create(r)
+	rrset, err := c.Records.Create(ctx, r)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -128,7 +128,7 @@ func resourceRRSetUpdate(ctx context.Context, d *schema.ResourceData, m interfac
 	var diags diag.Diagnostics
 
 	r := schemaToRRset(d)
-	rrset, err := c.Records.Update(domainName, subName, recordType, r)
+	rrset, err := c.Records.Update(ctx, domainName, subName, recordType, r)
 	if err != nil {
 		if isNotFoundError(err) {
 			d.SetId("")
@@ -151,7 +151,7 @@ func resourceRRSetDelete(ctx context.Context, d *schema.ResourceData, m interfac
 		return diag.FromErr(err)
 	}
 
-	err = c.Records.Delete(domainName, subName, recordType)
+	err = c.Records.Delete(ctx, domainName, subName, recordType)
 	if err != nil && !isNotFoundError(err) {
 		return diag.FromErr(err)
 	}

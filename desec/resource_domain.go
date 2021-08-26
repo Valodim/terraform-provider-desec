@@ -73,7 +73,7 @@ func resourceDomainCreate(ctx context.Context, d *schema.ResourceData, m interfa
 	c := conf.client
 
 	domainName := d.Get("name").(string)
-	domain, err := c.Domains.Create(domainName)
+	domain, err := c.Domains.Create(ctx, domainName)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -86,7 +86,7 @@ func resourceDomainRead(ctx context.Context, d *schema.ResourceData, m interface
 	conf := m.(*DesecConfig)
 	c := conf.client
 
-	domain, err := c.Domains.Get(d.Id())
+	domain, err := c.Domains.Get(ctx, d.Id())
 	if err != nil {
 		if isNotFoundError(err) {
 			d.SetId("")
@@ -104,7 +104,7 @@ func resourceDomainDelete(ctx context.Context, d *schema.ResourceData, m interfa
 	conf.cache.Clear()
 	c := conf.client
 
-	err := c.Domains.Delete(d.Id())
+	err := c.Domains.Delete(ctx, d.Id())
 	if err != nil && !isNotFoundError(err) {
 		return diag.FromErr(err)
 	}
