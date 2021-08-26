@@ -139,8 +139,6 @@ github.com/mitchellh/mapstructure v1.1.2/go.mod h1:FVVH3fgwuzCH5S8UJGiWEs2h04kUh
 github.com/mitchellh/reflectwalk v1.0.0/go.mod h1:mSTlrgnPZtwu0c4WaC2kGObEpuNDbx0jmZXqmk4esnw=
 github.com/mitchellh/reflectwalk v1.0.1 h1:FVzMWA5RllMAKIdUSC8mdWo3XtwoecrH79BY70sEEpE=
 github.com/mitchellh/reflectwalk v1.0.1/go.mod h1:mSTlrgnPZtwu0c4WaC2kGObEpuNDbx0jmZXqmk4esnw=
-github.com/nrdcg/desec v0.5.1-0.20210825032110-401c94cfb8e8 h1:fvnmsq0Q1KjB0PnvqQIjoW5SmyvOdI5iK/RHZlANUis=
-github.com/nrdcg/desec v0.5.1-0.20210825032110-401c94cfb8e8/go.mod h1:wybWg5cRrNmtXLYpUCPCLvz4jfFNEGZQEnoUiX9WqcY=
 github.com/nrdcg/desec v0.6.0 h1:kZ9JtsYEW3LNfuPIM+2tXoxoQlF9koWfQTWTQsA7Sr8=
 github.com/nrdcg/desec v0.6.0/go.mod h1:wybWg5cRrNmtXLYpUCPCLvz4jfFNEGZQEnoUiX9WqcY=
 github.com/oklog/run v1.0.0 h1:Ru7dDtJNOyC66gQ5dQmaCa0qIsAUFY3sFpK1Xk8igrw=
