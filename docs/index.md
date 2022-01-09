@@ -23,6 +23,3 @@ provider "desec" {
 
 - **api_token** (String) API token to authenticate to the service.
 - **api_uri** (String, Optional) The API base URI to use. Defaults to `https://desec.io/api/v1/`
-- **limit_read** (Integer, Optional) Maximum number of read API requests to send, per second. Defaults to 8.
-- **limit_write** (Integer, Optional) Maximum number of write API requests to send, per second. Defaults to 5.
-
