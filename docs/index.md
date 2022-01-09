@@ -23,3 +23,4 @@ provider "desec" {
 
 - **api_token** (String) API token to authenticate to the service.
 - **api_uri** (String, Optional) The API base URI to use. Defaults to `https://desec.io/api/v1/`
+- **retry_max** (Integer, Optional) The max number of retries when sending an API request. The default value is determined by the deSEC API client [implementation](https://github.com/nrdcg/desec).
