@@ -36,6 +36,11 @@ func Provider() *schema.Provider {
 				Description:  "The API token for operations.",
 				ValidateFunc: validation.StringMatch(regexp.MustCompile("[0-9a-zA-Z_-]{28}"), "API key looks invalid"),
 			},
+			"retry_max": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Description:  "The max number of retries when sending an API request.",
+			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"desec_rrset":  resourceRRSet(),
@@ -55,6 +60,11 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	o.HTTPClient = cleanhttp.DefaultClient()
 	o.HTTPClient.Transport = logging.NewTransport("Desec", o.HTTPClient.Transport)
 	o.Logger = log.Default()
+
+        retry_max, retry_max_set := d.GetOk("retry_max")
+        if retry_max_set {
+                o.RetryMax = retry_max.(int)
+        }
 
 	c := dsc.New(token, o)
 	api_uri := d.Get("api_uri").(string)
