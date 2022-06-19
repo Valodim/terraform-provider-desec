@@ -72,7 +72,7 @@ func resourceRRSet() *schema.Resource {
 			"ttl": {
 				Type:         schema.TypeInt,
 				Required:     true,
-				ValidateFunc: validation.IntBetween(3600, 604800),
+				ValidateFunc: validation.IntBetween(60, 604800),
 			},
 		},
 	}
