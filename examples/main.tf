@@ -1,8 +1,8 @@
 terraform {
   required_providers {
     desec = {
-      version = "~> 0.1"
-      source  = "cotech.de/desec/desec"
+      source = "Valodim/desec"
+      version = "0.3.0"
     }
   }
 }
