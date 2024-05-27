@@ -44,7 +44,7 @@ func resourceRRSet() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"A", "AAAA", "CAA", "CERT", "CNAME", "DNSKEY", "DS", "LOC", "MX", "NAPTR", "NS", "PTR", "SMIMEA", "SPF", "SRV", "SSHFP", "TLSA", "TXT", "URI"}, false),
+				ValidateFunc: validation.StringInSlice([]string{"A", "AAAA", "AFSDB", "APL", "CAA", "CERT", "CNAME", "DHCID", "DNAME", "DNSKEY", "DLV", "DS", "EUI48", "HINFO", "HTTPS", "KX", "L32", "L64", "LOC", "LP", "MX", "NAPTR", "NID", "NS", "OPENPGPKEY", "PTR", "RP", "SMIMEA", "SPF", "SRV", "SSHFP", "SVCB", "TLSA", "TXT", "URI"}, false),
 			},
 			"name": {
 				Type:     schema.TypeString,
