@@ -2,7 +2,7 @@ terraform {
   required_providers {
     desec = {
       source = "Valodim/desec"
-      version = "0.3.0"
+      version = "0.5.0"
     }
   }
 }
