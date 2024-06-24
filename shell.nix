@@ -9,6 +9,7 @@ in
   pkgs.mkShell {
     buildInputs = with pkgs; [
       go
+      goreleaser
       terraform
     ];
   }
