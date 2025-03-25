@@ -10,6 +10,6 @@ in
     buildInputs = with pkgs; [
       go
       goreleaser
-      terraform
+      opentofu
     ];
   }
