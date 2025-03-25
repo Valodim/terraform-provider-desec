@@ -9,6 +9,7 @@ bin
 # .tfstate files
 *.tfstate
 *.tfstate.*
+.terraform.lock.hcl
 
 # typically used for testing
 main.tf
