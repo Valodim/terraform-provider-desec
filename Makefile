@@ -1,6 +1,6 @@
 TEST?=$$(go list ./... | grep -v 'vendor')
 HOSTNAME=cotech.de
-NAMESPACE=desec
+NAMESPACE=valodim
 NAME=desec
 BINARY=terraform-provider-${NAME}
 VERSION=0.5.0
@@ -26,8 +26,8 @@ release:
 	GOOS=windows GOARCH=amd64 go build -o ./bin/${BINARY}_${VERSION}_windows_amd64
 
 install: build
-	mkdir -p ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
-	mv ${BINARY} ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
+	mkdir -p plugins/registry.opentofu.org/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
+	mv ${BINARY} plugins/registry.opentofu.org/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
 
 test:
 	go test -i $(TEST) || exit 1
