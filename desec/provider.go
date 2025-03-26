@@ -43,9 +43,10 @@ func Provider() *schema.Provider {
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
-			"desec_rrset":  resourceRRSet(),
-			"desec_domain": resourceDomain(),
-			"desec_token":  resourceToken(),
+			"desec_rrset":        resourceRRSet(),
+			"desec_domain":       resourceDomain(),
+			"desec_token":        resourceToken(),
+			"desec_token_policy": resourceTokenPolicy(),
 		},
 		ConfigureContextFunc: providerConfigure,
 	}
