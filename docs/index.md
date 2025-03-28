@@ -15,12 +15,13 @@ Do not keep your authentication password in HCL for production environments, use
 
 ```terraform
 provider "desec" {
-  api_token = "abcdefghijklmn-opqrstuvwxyz1"
+  # Use DESEC_API_TOKEN instead
+  # api_token = "abcdefghijklmn-opqrstuvwxyz1"
 }
 ```
 
 ## Schema
 
-- **api_token** (String) API token to authenticate to the service.
-- **api_uri** (String, Optional) The API base URI to use. Defaults to `https://desec.io/api/v1/`
+- **api_token** (String) API token to authenticate to the service. Environment DESEC_API_TOKEN
+- **api_uri** (String, Optional) The API base URI to use. Defaults to `https://desec.io/api/v1/`. Environment DESEC_API_URI
 - **retry_max** (Integer, Optional) The max number of retries when sending an API request. The default value is determined by the deSEC API client [implementation](https://github.com/nrdcg/desec).
