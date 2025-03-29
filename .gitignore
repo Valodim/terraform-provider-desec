@@ -49,3 +49,5 @@ goreleaser
 dist
 
 .env
+
+dist/
