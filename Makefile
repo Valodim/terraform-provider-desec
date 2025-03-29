@@ -3,7 +3,7 @@ HOSTNAME=cotech.de
 NAMESPACE=desec
 NAME=desec
 BINARY=terraform-provider-${NAME}
-VERSION=0.5.0
+VERSION=0.6.0
 OS_ARCH=linux_amd64
 
 default: install
