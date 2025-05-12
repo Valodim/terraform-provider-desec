@@ -179,7 +179,7 @@ func schemaToTokenPolicy(d *schema.ResourceData) dsc.TokenPolicy {
 	}
 	typ := d.Get("type").(string)
 	if typ != "" {
-		result.Domain = &typ
+		result.Type = &typ
 	}
 	return result
 }
