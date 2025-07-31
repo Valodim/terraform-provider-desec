@@ -6,7 +6,7 @@ BINARY=terraform-provider-${NAME}
 VERSION=0.6.1
 OS_ARCH=linux_amd64
 
-default: install
+default: build
 
 build:
 	go build -o ${BINARY}
@@ -25,9 +25,9 @@ release:
 	GOOS=windows GOARCH=386 go build -o ./bin/${BINARY}_${VERSION}_windows_386
 	GOOS=windows GOARCH=amd64 go build -o ./bin/${BINARY}_${VERSION}_windows_amd64
 
-install: build
-	mkdir -p ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
-	mv ${BINARY} ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
+install-example: build
+	mkdir -p examples/.terraform/providers/registry.opentofu.org/valodim/${NAMESPACE}/${VERSION}/${OS_ARCH}
+	mv ${BINARY} examples/.terraform/providers/registry.opentofu.org/valodim/${NAMESPACE}/${VERSION}/${OS_ARCH}
 
 test:
 	go test -i $(TEST) || exit 1
