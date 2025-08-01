@@ -15,9 +15,17 @@ import (
 	dsc "github.com/nrdcg/desec"
 )
 
+type TokenCreateMode int
+
+const (
+	TokenCreateModePrint TokenCreateMode = iota
+	TokenCreateModeStoreState
+)
+
 type DesecConfig struct {
-	cache  *DesecCache
-	client *dsc.Client
+	cache           *DesecCache
+	client          *dsc.Client
+	tokenCreateMode TokenCreateMode
 }
 
 // Provider -
@@ -40,6 +48,13 @@ func Provider() *schema.Provider {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Description: "The max number of retries when sending an API request.",
+			},
+			"token_create_mode": {
+				Type:         schema.TypeString,
+				ValidateFunc: validation.StringInSlice([]string{"print", "storeState"}, false),
+				Default:      "print",
+				Optional:     true,
+				Description:  "The way that tokens are exposed to the user during creation. If 'print', the token will be output as a warning message during creation. If 'storeState', the token will be stored in the state initially (this may be insecure!), but cleared when the state is next refreshed.",
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
@@ -68,6 +83,18 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 		o.RetryMax = retry_max.(int)
 	}
 
+	tokenCreateMode := TokenCreateModePrint
+	if tcm, ok := d.GetOk("token_create_mode"); ok {
+		switch tcm {
+		case "storeState":
+			tokenCreateMode = TokenCreateModeStoreState
+		case "print":
+			tokenCreateMode = TokenCreateModePrint
+		default:
+			return nil, diag.Errorf("invalid value for config field: token_create_mode")
+		}
+	}
+
 	c := dsc.New(token, o)
 	api_uri := d.Get("api_uri").(string)
 	if api_uri != "" {
@@ -75,7 +102,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	}
 
 	cache := NewDesecCache()
-	return &DesecConfig{&cache, c}, nil
+	return &DesecConfig{&cache, c, tokenCreateMode}, nil
 }
 
 func isNotFoundError(err error) bool {

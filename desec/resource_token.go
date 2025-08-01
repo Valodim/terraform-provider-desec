@@ -2,6 +2,7 @@ package desec
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -13,7 +14,6 @@ import (
 
 func resourceToken() *schema.Resource {
 	return &schema.Resource{
-		// Creation is not supported, since it will create a secret that can't be shown
 		CreateContext: resourceTokenCreate,
 		ReadContext:   resourceTokenRead,
 		UpdateContext: resourceTokenUpdate,
@@ -47,10 +47,11 @@ func resourceToken() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			// Typically only available right after creation, emptied on next refresh
+			// Only used if token_create_mode is set to storeState
 			"token": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:      schema.TypeString,
+				Computed:  true,
+				Sensitive: true,
 			},
 			"owner": {
 				Type:     schema.TypeString,
@@ -105,13 +106,33 @@ func resourceTokenCreate(ctx context.Context, d *schema.ResourceData, m interfac
 	if err != nil {
 		return diag.FromErr(err)
 	}
+
+	tokenValue := token.Value
+
 	// TODO unify in create call
 	token, err = c.Tokens.Update(ctx, token.ID, &t)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
+	switch conf.tokenCreateMode {
+	case TokenCreateModePrint:
+		// Output token value to the user as a warning
+		diags = append(diags,
+			diag.Diagnostic{
+				Severity: diag.Warning,
+				Summary:  fmt.Sprintf("desec access token value: %s", tokenValue),
+				Detail:   "This is the value of the created desec access token. It is only printed here once, and will not be stored in terraform state.",
+			})
+		// Defensively clear the token. This happens with the Update call above, but we better make sure.
+		token.Value = ""
+	case TokenCreateModeStoreState:
+		// Put token into state. This will be cleared on the next refresh, but until then it's in the state.
+		token.Value = tokenValue
+	}
+
 	tokenIntoSchema(token, d)
+
 	return diags
 }
 
@@ -177,8 +198,8 @@ func tokenIntoSchema(r *dsc.Token, d *schema.ResourceData) {
 	d.Set("perm_create_domain", r.PermCreateDomain)
 	d.Set("perm_delete_domain", r.PermDeleteDomain)
 	d.Set("perm_manage_tokens", r.PermManageTokens)
-	d.Set("auto_policy", r.AutoPolicy)
 	d.Set("token", r.Value)
+	d.Set("auto_policy", r.AutoPolicy)
 	if r.AllowedSubnets != nil {
 		d.Set("allowed_subnets", r.AllowedSubnets)
 	}
