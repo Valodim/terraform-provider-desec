@@ -50,4 +50,8 @@ dist
 
 .env
 
+# Nix
+.direnv/
+result
+
 dist/
