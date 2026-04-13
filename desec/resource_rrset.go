@@ -184,7 +184,7 @@ func schemaToRRset(d *schema.ResourceData) dsc.RRSet {
 	recs := d.Get("records").(*schema.Set)
 	r.Records = make([]string, recs.Len())
 	for i, rec := range recs.List() {
-		if (rtype == "TXT" || rtype == "SPF") && rec.(string)[0] != '"' {
+		if (rtype == "TXT" || rtype == "SPF") && len(rec.(string)) > 0 && rec.(string)[0] != '"' {
 			r.Records[i] = fmt.Sprintf("\"%s\"", rec.(string))
 		} else {
 			r.Records[i] = rec.(string)
